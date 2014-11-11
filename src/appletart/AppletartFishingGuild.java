@@ -1,30 +1,27 @@
 package appletart;
 
-import oracle.jrockit.jfr.JFR;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.net.URL;
 import java.text.NumberFormat;
 
-@Script.Manifest(name = "AppletartFishingGuild", description = "Fishing lobs atm", properties = "client=4;")
+@Script.Manifest(name = "AppletartFishingGuild", description = "Fishes at the fishing guild!", properties = "client=4;")
 public class AppletartFishingGuild extends PollingScript<ClientContext> implements PaintListener, MessageListener {
 
     private static final Area FISHING_SPOT = new Area(new Tile(2597, 3419), new Tile(2610, 3428));
     private static final Area BANK_AREA = new Area(new Tile(2585, 3413), new Tile(2595, 3423));
+
     public long startTime = 0;
     public long millis = 0;
     public long hours = 0;
     public long minutes = 0;
     public long seconds = 0;
-    public long last = 0;
+
     public int startLevel;
     public int lvlsGained;
     public int expGained = 0;
@@ -127,8 +124,13 @@ public class AppletartFishingGuild extends PollingScript<ClientContext> implemen
                     if (ctx.players.local().animation() == -1) {
                         Npc spot = ctx.npcs.select().within(FISHING_SPOT).id(poolID).nearest().viewable().poll();
                             if (spot != null) {
-                                spot.interact(whatAction);
-                                sleep(1500, 2500);
+                                if(!spot.inViewport()){
+                                    ctx.camera.turnTo(spot);
+                                }
+                                else {
+                                    spot.interact(whatAction);
+                                    sleep(1500, 2500);
+                                }
                             }
                     } else {
                         if(ctx.players.local().interacting().valid() && ctx.players.local().interacting() instanceof Npc) {
